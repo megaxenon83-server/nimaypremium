@@ -1,0 +1,22 @@
+[Unit]
+Description=Nimay OMP Bridge
+Documentation=https://chat.nimay.net/nimayomp/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__USER__
+Group=__GROUP__
+Environment=HOME=__HOME__
+Environment=PATH=__HOME__/.local/bin:__HOME__/.bun/bin:/usr/local/bin:/usr/bin:/bin
+WorkingDirectory=/opt/nimay-omp-bridge
+ExecStart=__NODE__ /opt/nimay-omp-bridge/omp-bridge.mjs
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nimay-omp-bridge
+
+[Install]
+WantedBy=multi-user.target

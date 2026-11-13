@@ -1,0 +1,16 @@
+[Unit]
+Description=Nimay OMP Bridge (Node.js)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=omp
+WorkingDirectory=/opt/nimay-omp/bridge
+ExecStart=/usr/bin/node /opt/nimay-omp/bridge/omp-bridge.mjs
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,66 @@
+{
+  "project": "nimay-omp",
+  "releasesRoot": "C:\\Prosjekter\\Nimayomp\\releases",
+  "components": {
+    "bridge": {
+      "label": "OMP Bridge",
+      "appName": "nimay-omp-bridge",
+      "versionSource": {
+        "kind": "regex",
+        "file": "C:\\Prosjekter\\Nimayomp\\2.9.25-bridge\\bridge\\omp-bridge.mjs",
+        "pattern": "const VERSION = \"([^\"]+)\""
+      },
+      "artifactSource": "C:\\Prosjekter\\Nimayomp\\2.9.25-bridge",
+      "artifacts": [
+        { "name": "omp-bridge.mjs", "from": "bridge\\omp-bridge.mjs" },
+        {
+          "name": "config.template.json",
+          "from": "bridge\\config.json",
+          "redact": { "token": "__TOKEN__" }
+        },
+        { "name": "package.json", "from": "bridge\\package.json", "optional": true },
+        { "name": "tools", "from": "tools", "optional": true, "recursive": true },
+        { "name": "commands", "from": "commands", "optional": true, "recursive": true }
+      ]
+    },
+    "android": {
+      "label": "Android App",
+      "appName": "nimayomp-chatgpt-inspired",
+      "versionSource": {
+        "kind": "gradle",
+        "file": "C:\\Prosjekter\\Nimayomp\\android-source\\nimayomp\\app\\build.gradle",
+        "flavor": "chstgpt"
+      },
+      "artifactSource": "C:\\Prosjekter\\Nimayomp\\android-source\\nimayomp",
+      "artifacts": [
+        {
+          "name": "apk",
+          "from": "app\\build\\outputs\\apk\\chstgpt\\release\\nimayomp-chatgpt-inspired.apk",
+          "renameTo": "{appName}-{version}.apk"
+        }
+      ]
+    },
+    "linux": {
+      "label": "Linux Installer",
+      "appName": "nimay-omp-bridge",
+      "versionSource": {
+        "kind": "regex",
+        "file": "C:\\Prosjekter\\Nimayomp\\linux-bridge\\packaging\\deb\\DEBIAN\\control",
+        "pattern": "Version:\\s*(\\S+)"
+      },
+      "artifactSource": "C:\\Prosjekter\\Nimayomp\\linux-bridge",
+      "artifacts": [
+        { "name": "nimay-omp-bridge_{version}_amd64.deb", "from": "nimay-omp-bridge_{version}_amd64.deb" },
+        { "name": "nimay-omp-bridge-{version}-1.noarch.rpm", "from": "nimay-omp-bridge-{version}-1.noarch.rpm" },
+        { "name": "nimay-omp-bridge.container", "from": "nimay-omp-bridge.container" },
+        { "name": "install.sh", "from": "install.sh" },
+        { "name": "uninstall.sh", "from": "uninstall.sh" },
+        { "name": "Containerfile", "from": "Containerfile" },
+        { "name": "README.md", "from": "README.md", "optional": true },
+        { "name": "INSTALL_DEBIAN.md", "from": "INSTALL_DEBIAN.md", "optional": true },
+        { "name": "INSTALL_FEDORA.md", "from": "INSTALL_FEDORA.md", "optional": true },
+        { "name": "INSTALL_QUADLET.md", "from": "INSTALL_QUADLET.md", "optional": true }
+      ]
+    }
+  }
+}

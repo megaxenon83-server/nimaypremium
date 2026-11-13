@@ -1,0 +1,95 @@
+﻿{
+    "port":  7778,
+    "host":  "0.0.0.0",
+    "token":  "__TOKEN__",
+    "approvalMode":  "always-ask",
+    "allowBash":  true,
+    "projectRoots":  [
+                         "C:\\Users\\Megaxenon\\Documents"
+                     ],
+    "maxChildren":  4,
+    "idleMinutes":  90,
+    "projectsFile":  "",
+    "sessionDir":  "",
+    "voice":  {
+                  "enabled":  true,
+                  "profile":  "raske",
+                  "engine":  "norsk-piper",
+                  "voices":  {
+                                 "norsk-piper":  {
+                                                     "name":  "Norsk Piper",
+                                                     "type":  "piper",
+                                                     "lang":  "nb",
+                                                     "installed":  false,
+                                                     "size":  "64 MB",
+                                                     "cpu":  "lav",
+                                                     "ram":  "512 MB",
+                                                     "vram":  "0 MB",
+                                                     "description":  "Rask norsk tale pÃ¥ CPU"
+                                                 },
+                                 "chatterbox-v3":  {
+                                                       "name":  "Chatterbox Multilingual V3",
+                                                       "type":  "chatterbox",
+                                                       "lang":  "nb",
+                                                       "installed":  false,
+                                                       "size":  "1.5 GB",
+                                                       "cpu":  "hÃ¸y",
+                                                       "ram":  "4 GB",
+                                                       "vram":  "2 GB",
+                                                       "description":  "Naturlig norsk tale"
+                                                   },
+                                 "prat-9b-nf4":  {
+                                                     "name":  "Prat-9B-NF4 (VibeVoice)",
+                                                     "type":  "vibevoice",
+                                                     "lang":  "nb",
+                                                     "installed":  false,
+                                                     "size":  "6.2 GB",
+                                                     "cpu":  "svÃ¦rt hÃ¸y",
+                                                     "ram":  "8 GB",
+                                                     "vram":  "7 GB",
+                                                     "description":  "Norsk bokmÃ¥l, krever sterkt GPU"
+                                                 },
+                                 "original-vibevoice":  {
+                                                            "name":  "Original Microsoft VibeVoice",
+                                                            "type":  "vibevoice",
+                                                            "lang":  "en",
+                                                            "installed":  false,
+                                                            "size":  "2.5 GB",
+                                                            "cpu":  "hÃ¸y",
+                                                            "ram":  "6 GB",
+                                                            "vram":  "4 GB",
+                                                            "description":  "PrimÃ¦rt engelsk/kinesisk"
+                                                        }
+                             },
+                  "stt":  {
+                              "engine":  "nb-whisper-base",
+                              "engines":  {
+                                              "nb-whisper-tiny":  {
+                                                                      "name":  "NB-Whisper Tiny",
+                                                                      "lang":  "nb",
+                                                                      "installed":  false,
+                                                                      "size":  "39 MB"
+                                                                  },
+                                              "nb-whisper-base":  {
+                                                                      "name":  "NB-Whisper Base",
+                                                                      "lang":  "nb",
+                                                                      "installed":  false,
+                                                                      "size":  "142 MB"
+                                                                  },
+                                              "nb-whisper-small":  {
+                                                                       "name":  "NB-Whisper Small",
+                                                                       "lang":  "nb",
+                                                                       "installed":  false,
+                                                                       "size":  "466 MB"
+                                                                   }
+                                          }
+                          },
+                  "settings":  {
+                                   "autoplay":  true,
+                                   "bargeIn":  true,
+                                   "micMute":  true,
+                                   "speaker":  "hÃ¸yttaler",
+                                   "speed":  1
+                               }
+              }
+}

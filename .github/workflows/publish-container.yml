@@ -1,0 +1,81 @@
+name: Publish Linux Bridge Container
+
+# Publiserer container-imaget til GitHub Container Registry.
+#
+# Pakker publisert fra en workflow med GITHUB_TOKEN arver repoets
+# synlighet, og blir dermed offentlige. Pakker publisert utenfra med
+# et personlig token blir alltid private, og GitHub har ingen API for
+# aa endre synlighet etterpå.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versjon som tagges (f.eks. 1.0.0). Tom = bare latest.'
+        required: false
+        default: ''
+  push:
+    tags:
+      - 'linux-bridge-*'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hent kildekoden
+        uses: actions/checkout@v4
+
+      - name: Installer Podman
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y podman
+
+      # GHCR krever lowercase i pakkenavnet, og GITHUB_REPOSITORY inneholder
+      # allerede eier-prefixet. Derfor brukes GITHUB_REPOSITORY (ikke
+      # repository_owner + repository_name), og pakkenavnet settes i
+      # GITHUB_ENV slik at det ikke interpoleres i YAML.
+      - name: Sett image-navn
+        run: |
+          echo "GHCR_IMAGE=ghcr.io/$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')/omp-bridge" >> "$GITHUB_ENV"
+          echo "Image: $GHCR_IMAGE"
+
+      - name: Bygg image
+        working-directory: linux-bridge
+        run: |
+          podman build \
+            --tag "${GHCR_IMAGE}:latest" \
+            --file Containerfile \
+            .
+
+      - name: Publiser image
+        env:
+          REGISTRY: ghcr.io
+          # GITHUB_TOKEN maa vaere eksplisitt tilgjengelig. Uten
+          # packages: write i workflow-permissjonene blir tokenet tomt,
+          # og podman faller tilbake til aa lese passord fra terminalen.
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -z "${GHCR_TOKEN}" ]; then
+            echo "ERROR: GITHUB_TOKEN er tomt. Sjekk packages: write i workflow-permissjonene." >&2
+            exit 1
+          fi
+          echo "Token lengde: ${#GHCR_TOKEN}"
+
+          # podman vil ha et TTY for passord i Actions-miljoet
+          # ("inappropriate ioctl for device"), saa --creds brukes direkte.
+          # Runneren er engangs, saa dette er trygt.
+          CREDS="${GITHUB_ACTOR}:${GHCR_TOKEN}"
+
+          podman push --creds "${CREDS}" "${GHCR_IMAGE}:latest"
+
+          VERSION="${{ inputs.version }}"
+          if [ -z "$VERSION" ]; then
+            VERSION="${GITHUB_REF#refs/tags/linux-bridge-}"
+          fi
+          if [ -n "$VERSION" ]; then
+            podman tag "${GHCR_IMAGE}:latest" "${GHCR_IMAGE}:${VERSION}"
+            podman push --creds "${CREDS}" "${GHCR_IMAGE}:${VERSION}"
+          fi

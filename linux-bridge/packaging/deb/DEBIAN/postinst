@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e
+SERVICE="nimay-omp-bridge"
+INSTALL_DIR="/opt/nimay-omp-bridge"
+CONFIGURE="$INSTALL_DIR/scripts/configure.sh"
+
+case "$1" in
+  configure)
+    mkdir -p "$INSTALL_DIR"
+    if [ -f "$CONFIGURE" ]; then
+      bash "$CONFIGURE" --port 7802 || true
+    fi
+    ;;
+esac
+
+exit 0

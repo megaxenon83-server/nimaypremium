@@ -1,0 +1,14 @@
+Package: nimay-omp-bridge
+Version: 1.0.1
+Section: net
+Priority: optional
+Architecture: amd64
+Depends: nodejs (>= 18), bash, coreutils
+Maintainer: Nimay OMP <nimay@nimay.net>
+Description: Nimay OMP Bridge â€” Linux
+ Bridges the Nimay OMP Android app to a local OMP instance on port 7802.
+ Installs at /opt/nimay-omp-bridge and registers a systemd service that
+ starts automatically on boot (no login required). Pair the Android app
+ via the pairing token shown after installation.
+Homepage: https://chat.nimay.net/nimayomp/
+

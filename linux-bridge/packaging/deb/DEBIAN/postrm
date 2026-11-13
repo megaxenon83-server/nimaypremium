@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+SERVICE="nimay-omp-bridge"
+
+case "$1" in
+  remove|purge)
+    systemctl stop "$SERVICE" 2>/dev/null || true
+    systemctl disable "$SERVICE" 2>/dev/null || true
+    rm -f /etc/systemd/system/nimay-omp-bridge.service
+    systemctl daemon-reload
+    ;;
+esac
+
+exit 0

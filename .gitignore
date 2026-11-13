@@ -1,0 +1,80 @@
+# Android
+*.iml
+.gradle/
+local.properties
+.idea/
+.DS_Store
+build/
+captures/
+.externalNativeBuild
+.cxx
+keystore.properties
+*.jks
+*.apk
+*.apk.idsig
+
+# Bridge runtime state (contains pairing token and local session titles)
+bridge/config.json
+bridge/sessions-meta.json
+bridge/bridge.pid
+bridge/bridge.log
+bridge/bridge.err
+bridge/install-verify.log
+bridge/bridge.stdout.log
+bridge/bridge.stderr.log
+
+# Bridge installer runtime state
+bridge-installer/bridge/config.json
+bridge-installer/bridge/bridge.pid
+bridge-installer/bridge/bridge.stdout.log
+bridge-installer/bridge/bridge.stderr.log
+
+# Linux bridge build artifacts
+linux-bridge/*.deb
+linux-bridge/*.rpm
+linux-bridge/packaging/deb/*.deb
+linux-bridge/packaging/deb/nimay-omp-bridge_*.deb
+linux-bridge/packaging/rpm/*.rpm
+# Payload-mappen er kilde, ikke bygget output - den skal committes.
+
+# Release archive (built artifacts, not source)
+releases/
+
+# Pairing QR (encodes bearer token)
+omp_chat_qr.png
+omp_chat_qr*.png
+linux-bridge/omp_chat_qr*.png
+bridge-installer/omp_chat_qr*.png
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
+# Node.js
+node_modules/
+npm-debug.log*
+
+# Installer build artifacts
+installer/build/
+installer/build-fresh/
+installer/payload/tools/node_modules/
+
+# Test artifacts
+*.png
+*.html
+*.zip
+*.exe
+
+# Backup files
+*.bak*
+*.backup
+.backups/
+
+# OS
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp

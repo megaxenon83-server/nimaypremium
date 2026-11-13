@@ -1,0 +1,98 @@
+# Containerfile for Nimay OMP Bridge
+# Bygg: podman build -t nimay-omp-bridge:latest -f Containerfile .
+# Eller: podman build -t ghcr.io/nimay/omp-bridge:latest -f Containerfile .
+
+FROM registry.fedoraproject.org/fedora-minimal:40
+
+# Installer Node.js, bun og nødvendige verktøy.
+#
+# "bun" finnes ikke i Fedora 40-repos, så bun-lastes fra GitHub-releases.
+# unzip trengs for å pakke ut zip-fila.
+RUN microdnf install -y findutils tar gzip unzip shadow-utils \
+    && microdnf install -y --nodocs curl \
+    && microdnf clean all
+
+# Bun fra GitHub-releases (fastet ned versjon, ingen installasjonsskript),
+# og Node.js fra repoene.
+#
+# omp krever bun >= 1.4.4, saa en eldre bun gir feilmelding i stedet
+# for versjonsnummeret. 1.4.4 er den versjonen Windows-installasjonen
+# bruker, saa containeren og PC-en oppfører seg likt.
+ARG BUN_VERSION=1.4.4
+RUN curl -fsSL -o /tmp/bun.zip \
+      "https://github.com/oven-sh/bun/releases/download/bun-v${BUN_VERSION}/bun-linux-x64.zip" \
+    && unzip -q /tmp/bun.zip -d /tmp/bun \
+    && install -m 0755 /tmp/bun/bun-linux-x64/bun /usr/local/bin/bun \
+    && rm -rf /tmp/bun /tmp/bun.zip \
+    && microdnf install -y nodejs \
+    && microdnf clean all
+
+# Opprett bruker (kan overskrives med --build-arg)
+ARG USERNAME=omp
+ARG USER_UID=1000
+ARG USER_GID=1000
+
+RUN groupadd -g ${USER_GID} omp \
+    && useradd -u ${USER_UID} -g omp -m -s /bin/bash omp \
+    && mkdir -p /home/omp/.omp /opt/nimay-omp-bridge \
+    && chown -R omp:omp /home/omp /opt/nimay-omp-bridge
+
+# Kopier bridge-filer
+COPY --chown=omp:omp payload/bridge/omp-bridge.mjs /opt/nimay-omp-bridge/
+COPY payload/bridge/config.template.json /opt/nimay-omp-bridge/
+COPY scripts/configure.sh /opt/nimay-omp-bridge/scripts/
+COPY scripts/write-omp-bin.sh /opt/nimay-omp-bridge/scripts/
+COPY payload/tools /opt/nimay-omp-bridge/tools
+COPY payload/voice /opt/nimay-omp-bridge/voice
+COPY payload/nimay-omp-bridge.service /opt/nimay-omp-bridge/
+
+# Sett rettigheter
+RUN chown -R omp:omp /opt/nimay-omp-bridge /home/omp
+
+# Installer OMP (Oh My Pi) som tjenestebrukeren. Uten denne kan
+# broen ikke starte omp i det hele tatt, og alle spawn-kall feiler
+# med ENOENT.
+#
+# npm-cachen (220 MB) slettes etterpå; den fyller ellers image-et
+# uten å bidra til noe.
+USER omp
+WORKDIR /home/omp
+RUN npm install -g --prefix /home/omp/.local @oh-my-pi/pi-coding-agent \
+    && rm -rf /home/omp/.npm \
+    && mkdir -p /home/omp/.omp \
+    && chown -R omp:omp /home/omp/.local /home/omp/.omp
+
+# Pek broen pa riktig omp-binary. Uten denne fila faller broen tilbake
+# pa ~/.bun/bin/omp.exe, som er en Windows-sti og aldri finnes i
+# containeren. Da feiler alle spawn-kall med ENOENT.
+#
+# SERVICE_HOME settes til tjenestebrukerens home, ellers letes omp
+# i /root i stedet for /home/omp.
+RUN SERVICE_HOME=/home/omp /opt/nimay-omp-bridge/scripts/write-omp-bin.sh /opt/nimay-omp-bridge || \
+    echo "ADVARSEL: fant ingen omp i containeren"
+
+# Bruk omp-bruker
+USER omp
+WORKDIR /opt/nimay-omp-bridge
+
+# Sett miljøvariabler
+ENV HOME=/home/omp
+ENV PATH=/home/omp/.local/bin:/home/omp/.bun/bin:/usr/local/bin:/usr/bin:/bin
+
+# Entry point: genererer config.json ved oppstart hvis den mangler.
+#
+# Config.json maa genereres her, framfor pa verten, fordi /opt/nimay-omp-bridge
+# ikke skal mountes fra verten. En mount der ville skjult bro-fila i
+# image-et, og node ville feilet med MODULE_NOT_FOUND.
+#
+# Tokenet genereres ved foerste oppstart og ligger i image-laget, saa
+# det samme tokenet gjenbruges ved omstart.
+COPY --chown=omp:omp scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod 0755 /usr/local/bin/entrypoint.sh
+
+# Port
+EXPOSE 7802
+
+# Start bridge
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["node", "/opt/nimay-omp-bridge/omp-bridge.mjs"]

@@ -1,0 +1,19 @@
+services:
+  nimay-wol:
+    build: .
+    container_name: nimay-wol
+    restart: unless-stopped
+    environment:
+      WOL_PORT: ${WOL_PORT:-8790}
+      WOL_API_TOKEN: ${WOL_API_TOKEN:?set WOL_API_TOKEN in .env}
+      WOL_DATA_FILE: /data/pcs.json
+    volumes:
+      - ./data:/data
+    ports:
+      - "${WOL_BIND_IP:-0.0.0.0}:${WOL_PORT:-8790}:8790"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8790/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s

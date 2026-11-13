@@ -1,0 +1,18 @@
+# Bridge runtime-state (contains pairing token and local session titles)
+bridge/config.json
+bridge/sessions-meta.json
+bridge/bridge.pid
+bridge/bridge.stdout.log
+bridge/bridge.stderr.log
+bridge/bridge.log
+bridge/bridge.err
+bridge/install-verify.log
+bridge/node_modules/
+
+# Paring QR (encodes bearer token)
+omp_chat_qr.png
+omp_chat_qr*.png
+
+# Node.js
+node_modules/
+npm-debug.log*

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OMP Chat</string>
+    <string name="notification_channel">OMP-svar</string>
+    <string name="notification_channel_hint">Varsel når OMP har svart ferdig</string>
+    <string name="camera_needed">Kameratilgang kreves for å skanne QR-koden</string>
+    <string name="scan_prompt">Skann QR-koden fra OMP-bridgen</string>
+    <string name="speech_prompt">Snakk til OMP</string>
+    <string name="speech_unavailable">Fant ingen talegjenkjenning på enheten</string>
+    <string name="attach_failed">Kunne ikke lese filen</string>
+    <string name="file_too_large">Filen er for stor (maks 12 MB)</string>
+</resources>

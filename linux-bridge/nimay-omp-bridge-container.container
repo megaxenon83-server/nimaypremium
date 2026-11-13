@@ -1,0 +1,58 @@
+[Unit]
+Description=Nimay OMP Bridge
+Documentation=https://chat.nimay.net/nimayopp/
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+# Ferdigbygd image, publisert til GitHub Container Registry.
+Image=ghcr.io/megaxenon83-server/ompchat/omp-bridge:latest
+# Eller bygg lokalt: Image=nimay-omp-bridge:latest
+# Bygg med: podman build -t nimay-omp-bridge:latest -f Containerfile .
+
+# Kjør som UID/GID 1000 (brukeren "omp" i image-et), slik at filene
+# broen skriver i ~/.omp får riktig eierskap.
+#
+# Viktig: User= og Group= settes til de numeriske ID-ene, ikke
+# brukernavn. Vertsbrukerens navn finnes ikke i image-et, og
+# eierskapet av de monterte mappene maa vaere UID 1000 for at
+# broen skal kunne skrive i dem (EACCERS ellers).
+User=1000
+Group=1000
+
+# Miljøvariabler for OMP-bruker
+Environment=HOME=/home/omp
+Environment=OMP_HOME=/home/omp/.omp
+Environment=PATH=/home/omp/.local/bin:/home/omp/.bun/bin:/usr/local/bin:/usr/bin:/bin
+
+# Filsystemtilgang for OMP-sesjoner og konfig.
+#
+# ~/.omp maa vaere eid av UID 1000, ellers kan ikke broen skrive
+# agent-databasen der. Stien maa ogsa vaere tilgjengelig for UID 1000,
+# saa den legges i /var/lib framfor i /home/<bruker>, som ofte er eid
+# av root uten traverse-rettighet.
+Volume=<OMP_STATE>:/home/omp/.omp:Z
+
+# Config.json (token og port) mountes fra verten, saa tokenet overlever
+# omstarter. Mounten maa dekke config.json direkte, siden broen leser
+# den fra /opt/nimay-omp-bridge.
+Volume=<CONFIG_DIR>/config.json:/opt/nimay-omp-bridge/config.json:Z
+
+# Brukerens hjemmekatalog mountes inn, slik at broen finner
+# prosjektmapper a jobbe i.
+Volume=<USER_HOME>:/home/user:Z
+Volume=/opt/nimay-omp-bridge:/opt/nimay-omp-bridge:Z
+
+# Nettverk: host-modus for enkel pairing (eller port mapping under)
+Network=host
+# Eller port mapping: PublishPort=7802:7802
+
+# Automatisk oppdatering
+AutoUpdate=registry
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Restart=always
+RestartSec=3

@@ -1,0 +1,15 @@
+{
+  "port": __PORT__,
+  "host": "0.0.0.0",
+  "token": "__TOKEN__",
+  "approvalMode": "always-ask",
+  "allowBash": true,
+  "projectRoots": [],
+  "maxChildren": 4,
+  "idleMinutes": 90,
+  "projectsFile": "",
+  "sessionDir": "",
+  "voice": {
+    "enabled": false
+  }
+}
