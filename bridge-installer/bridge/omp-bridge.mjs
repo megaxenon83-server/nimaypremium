@@ -1568,8 +1568,8 @@ function bearer(req) {
 }
 
 function authorised(req) {
-  const token = bearer(req);
-  return token.length === CONFIG.token.length && crypto.timingSafeEqual(Buffer.from(token), Buffer.from(CONFIG.token));
+  // Token auth disabled by user request (local/Tailscale setup).
+  return true;
 }
 
 const rate = new Map();
