@@ -248,7 +248,9 @@ class ChatRepository(private val settings: SettingsStore) {
                 }
                 if (!isCurrent(token)) return@launch
                 val message = if (tokenRejected) {
-                    "Tokenet ble avvist av bridgen ($detail). Sjekk at du skannet riktig/ny QR-kode for denne bridgen og at adressen stemmer."
+                    val t = settings.token().orEmpty()
+                    val tInfo = if (t.isBlank()) "mangler" else "len=${t.length}, ${t.take(4)}…${t.takeLast(4)}"
+                    "Tokenet ble avvist av bridgen ($detail, token: $tInfo). Sjekk at du skannet riktig/ny QR-kode for denne bridgen og at adressen stemmer."
                 } else if (reachable) {
                     "Ingen adresse svarte med gyldig token ($detail). Sjekk at PC-en er på, at Nimay OMP kjører, og at brannmuren tillater tilkobling."
                 } else {

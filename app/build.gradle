@@ -35,8 +35,8 @@ android {
         chstgpt {
             dimension "ui"
             applicationIdSuffix ".superpremium"
-            versionCode 201
-            versionName "4.0.1-super-premium"
+            versionCode 202
+            versionName "4.0.2-super-premium"
         }
     }
 
