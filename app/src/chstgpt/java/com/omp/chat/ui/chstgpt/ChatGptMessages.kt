@@ -95,7 +95,7 @@ fun ChatGptMessageList(
         state = listState,
         modifier = modifier,
         contentPadding = contentPadding,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         itemsIndexed(visible, key = { index, message -> "${message.id}-$index" }) { index, message ->
             val isLast = index == visible.lastIndex
@@ -131,10 +131,10 @@ private fun GptUserMessage(message: ChatMessage, onEdit: (ChatMessage) -> Unit) 
         Box(
             Modifier
                 .widthIn(max = 320.dp)
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(22.dp))
                 .background(c.userBubble)
                 .clickable { menu = !menu }
-                .padding(horizontal = 16.dp, vertical = 10.dp)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
             if (message.text.isNotBlank()) {
                 SelectionContainer {
