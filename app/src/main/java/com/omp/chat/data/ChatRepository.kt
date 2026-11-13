@@ -196,6 +196,8 @@ class ChatRepository(private val settings: SettingsStore) {
             var pingResult: JsonObject? = null
             var healthResult: JsonObject? = null
             var tokenRejected = false
+            val resultByUrl = linkedMapOf<String, String>()
+            probes.forEach { resultByUrl[it.url] = if (it.ok) "OK" else it.reason }
 
             // Prøv hver kandidat i rekkefølge, verifiser både ping OG health.
             // Ikke promoter en adresse til primær før både ping og health er bestått.
@@ -208,11 +210,15 @@ class ChatRepository(private val settings: SettingsStore) {
                     // shared baseUrl is only promoted after it has answered.
                     healthResult = client.health(probe.url)
                     connectedUrl = probe.url
+                    resultByUrl[probe.url] = "OK"
                     android.util.Log.d("OmpChat", "connect: ping+health OK på ${probe.url}, versjon ${pingResult?.str("version")}")
                     break // Suksess, stopp å prøve
                 } catch (error: Exception) {
                     if (error is BridgeException && error.status in listOf(401, 403)) {
                         tokenRejected = true
+                        resultByUrl[probe.url] = "token avvist (HTTP ${error.status})"
+                    } else {
+                        resultByUrl[probe.url] = error.message?.take(80)?.ifBlank { "feil" } ?: "feil"
                     }
                     android.util.Log.d("OmpChat", "connect: ${probe.url} feilet: ${error.message}")
                     // Fortsett til neste kandidat
@@ -226,8 +232,8 @@ class ChatRepository(private val settings: SettingsStore) {
             if (connectedUrl == null) {
                 // Alle kandidater feilet
                 val reachable = probes.any { it.ok }
-                val detail = probes.joinToString(" · ") { probe ->
-                    "${EndpointResolver.hostLabel(probe.url)}: ${if (probe.ok) "OK" else probe.reason}"
+                val detail = resultByUrl.entries.joinToString(" · ") { (url, reason) ->
+                    "${EndpointResolver.hostLabel(url)}: $reason"
                 }
                 if (tokenRejected) {
                     synchronized(this@ChatRepository) {
@@ -242,11 +248,11 @@ class ChatRepository(private val settings: SettingsStore) {
                 }
                 if (!isCurrent(token)) return@launch
                 val message = if (tokenRejected) {
-                    "Tokenet ble avvist av bridgen. Skann QR-koden på nytt for å få et nytt token."
+                    "Tokenet ble avvist av bridgen ($detail). Sjekk at du skannet riktig/ny QR-kode for denne bridgen og at adressen stemmer."
                 } else if (reachable) {
-                    "Ingen adresse svarte med gyldig token ($detail). Sjekk at PC-en er på, at Nimay OMP kjører, og at brannmuren tillater TCP 7777."
+                    "Ingen adresse svarte med gyldig token ($detail). Sjekk at PC-en er på, at Nimay OMP kjører, og at brannmuren tillater tilkobling."
                 } else {
-                    "Ingen adresse svarte ($detail). Sjekk at PC-en er på, at Nimay OMP kjører, og at brannmuren tillater TCP 7777."
+                    "Ingen adresse svarte ($detail). Sjekk at PC-en er på, at Nimay OMP kjører, og at brannmuren tillater tilkobling."
                 }
                 android.util.Log.d("OmpChat", "connect feil: $message")
                 _state.update {
