@@ -6,61 +6,89 @@ import com.omp.chat.BuildConfig
 // ---------------------------------------------------------------------------
 // Variant-aware color system
 //
-// Classic flavour uses Nimay colours; ChatGPT-inspired flavour uses a neutral,
-// near-black palette. Shared screens read from VariantColors so they adapt
-// automatically to the active product flavour without hardcoding Nimay colours.
+// Classic flavour uses Nimay colours; ChatGPT-inspired flavour (super-premium)
+// uses a neutral palette. Shared/legacy screens read from VariantColors so they
+// adapt automatically. For super-premium, an active theme snapshot can be
+// provided so colours follow light/dark selection.
 // ---------------------------------------------------------------------------
 
+data class VariantPaletteSnapshot(
+    val background: Color,
+    val sidebar: Color,
+    val surface: Color,
+    val surfaceElevated: Color,
+    val textPrimary: Color,
+    val textSecondary: Color,
+    val textTertiary: Color,
+    val divider: Color,
+    val accent: Color,
+    val onAccent: Color,
+    val error: Color,
+    val warning: Color,
+    val online: Color,
+    val codeBackground: Color,
+    val codeHeader: Color,
+    val inlineCode: Color,
+    val userBubble: Color,
+    val selected: Color
+)
+
+object VariantPaletteState {
+    @Volatile var superPremium: VariantPaletteSnapshot? = null
+}
+
 object VariantColors {
-    /** True when building the chatgpt-inspired product flavour. */
+    /** True when building the chatgpt-inspired/super-premium product flavour. */
     val isChatgpt: Boolean
         get() = BuildConfig.FLAVOR == "chstgpt"
 
+    private val sp: VariantPaletteSnapshot? get() = if (isChatgpt) VariantPaletteState.superPremium else null
+
     // ── Backgrounds ──────────────────────────────────────────────────────
     val background: Color
-        get() = if (isChatgpt) Color(0xFF0D0D0D) else NimayBackground
+        get() = sp?.background ?: if (isChatgpt) Color(0xFF0D0D0D) else NimayBackground
     val sidebar: Color
-        get() = if (isChatgpt) Color(0xFF171717) else NimaySidebar
+        get() = sp?.sidebar ?: if (isChatgpt) Color(0xFF171717) else NimaySidebar
     val surface: Color
-        get() = if (isChatgpt) Color(0xFF212121) else NimaySurface
+        get() = sp?.surface ?: if (isChatgpt) Color(0xFF212121) else NimaySurface
     val surfaceElevated: Color
-        get() = if (isChatgpt) Color(0xFF272727) else Color(0xFF172B47)
+        get() = sp?.surfaceElevated ?: if (isChatgpt) Color(0xFF272727) else Color(0xFF172B47)
 
     // ── Text ─────────────────────────────────────────────────────────────
     val textPrimary: Color
-        get() = if (isChatgpt) Color(0xFFF5F5F5) else NimayTextPrimary
+        get() = sp?.textPrimary ?: if (isChatgpt) Color(0xFFF5F5F5) else NimayTextPrimary
     val textSecondary: Color
-        get() = if (isChatgpt) Color(0xFFA3A3A3) else NimayTextSecondary
+        get() = sp?.textSecondary ?: if (isChatgpt) Color(0xFFA3A3A3) else NimayTextSecondary
     val textTertiary: Color
-        get() = if (isChatgpt) Color(0xFF8E8E8E) else Color(0xFFA2B4CF)
+        get() = sp?.textTertiary ?: if (isChatgpt) Color(0xFF8E8E8E) else Color(0xFFA2B4CF)
 
     // ── Dividers & borders ───────────────────────────────────────────────
     val divider: Color
-        get() = if (isChatgpt) Color(0xFF3A3A3A) else NimayDivider
+        get() = sp?.divider ?: if (isChatgpt) Color(0xFF3A3A3A) else NimayDivider
 
     // ── Accents ──────────────────────────────────────────────────────────
     val accent: Color
-        get() = if (isChatgpt) Color(0xFF10A37F) else NimayAccent
+        get() = sp?.accent ?: if (isChatgpt) Color(0xFF10A37F) else NimayAccent
     val onAccent: Color
-        get() = if (isChatgpt) Color(0xFFFFFFFF) else Color(0xFFFFFFFF)
+        get() = sp?.onAccent ?: if (isChatgpt) Color(0xFFFFFFFF) else Color(0xFFFFFFFF)
     val error: Color
-        get() = if (isChatgpt) Color(0xFFFF5F56) else NimayError
+        get() = sp?.error ?: if (isChatgpt) Color(0xFFFF5F56) else NimayError
     val warning: Color
-        get() = if (isChatgpt) Color(0xFFFFB300) else Color(0xFFFF6278)
+        get() = sp?.warning ?: if (isChatgpt) Color(0xFFFFB300) else Color(0xFFFF6278)
     val online: Color
-        get() = if (isChatgpt) Color(0xFF8E8E8E) else NimayActive
+        get() = sp?.online ?: if (isChatgpt) Color(0xFF8E8E8E) else NimayActive
 
     // ── Code blocks ──────────────────────────────────────────────────────
     val codeBackground: Color
-        get() = if (isChatgpt) Color(0xFF171717) else Color(0xFF111F35)
+        get() = sp?.codeBackground ?: if (isChatgpt) Color(0xFF171717) else Color(0xFF111F35)
     val codeHeader: Color
-        get() = if (isChatgpt) Color(0xFF1F1F1F) else Color(0xFF0D192B)
+        get() = sp?.codeHeader ?: if (isChatgpt) Color(0xFF1F1F1F) else Color(0xFF0D192B)
     val inlineCode: Color
-        get() = if (isChatgpt) Color(0xFF2A2A2A) else Color(0xFF1D2427)
+        get() = sp?.inlineCode ?: if (isChatgpt) Color(0xFF2A2A2A) else Color(0xFF1D2427)
 
     // ── User message bubble ──────────────────────────────────────────────
     val userBubble: Color
-        get() = if (isChatgpt) Color(0xFF2A2A2A) else NimayUserBubble
+        get() = sp?.userBubble ?: if (isChatgpt) Color(0xFF2A2A2A) else NimayUserBubble
     val selected: Color
-        get() = if (isChatgpt) Color(0xFF333333) else Color(0xFF263F60)
+        get() = sp?.selected ?: if (isChatgpt) Color(0xFF333333) else Color(0xFF263F60)
 }

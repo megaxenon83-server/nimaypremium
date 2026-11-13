@@ -464,8 +464,8 @@ private fun LegacyHost(
 }
 
 /**
- * Pairing keeps the existing, verified QR/manual flow. It is hosted in the
- * classic palette because it is a complete, self-contained screen.
+ * Pairing keeps the existing, verified QR/manual flow, presented in the
+ * Super Premium theme for a consistent first impression.
  */
 @Composable
 private fun GptPairingHost(
@@ -479,9 +479,9 @@ private fun GptPairingHost(
     onToast: (String) -> Unit,
     onGoToMain: () -> Unit
 ) {
-    OmpTheme(theme = settings.theme, dynamicColor = false, fontScale = settings.fontScale) {
+    ChatGptTheme(theme = settings.theme, fontScale = settings.fontScale) {
         CompositionLocalProvider(LocalStrings provides strings) {
-            Surface(Modifier.fillMaxSize(), color = androidx.compose.material3.MaterialTheme.colorScheme.background) {
+            Surface(Modifier.fillMaxSize(), color = LocalChatGptColors.current.background) {
                 PairingScreen(
                     connecting = connecting,
                     error = error,

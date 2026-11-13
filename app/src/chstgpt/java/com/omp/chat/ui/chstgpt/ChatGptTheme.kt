@@ -1,5 +1,6 @@
 package com.omp.chat.ui.chstgpt
 
+import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
@@ -9,9 +10,12 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -19,11 +23,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import com.omp.chat.R
+import com.omp.chat.ui.theme.VariantPaletteSnapshot
+import com.omp.chat.ui.theme.VariantPaletteState
 
 // ---------------------------------------------------------------------------
-// ChatGPT-inspired design tokens. Colours match the official ChatGPT Android
-// app dark theme as closely as possible; no proprietary assets are copied.
+// Super Premium design tokens (ChatGPT-inspired foundation), theme-aware.
 // ---------------------------------------------------------------------------
 
 @Immutable
@@ -91,6 +97,11 @@ private val Light = ChatGptColors(
 )
 
 val LocalChatGptColors = staticCompositionLocalOf { Dark }
+
+/** Bridge so legacy screens reading VariantColors follow the active ChatGPT theme (light/dark). */
+object ChatGptPaletteBridge {
+    @Volatile var current: ChatGptColors = Dark
+}
 
 private val Inter = FontFamily(
     Font(R.font.inter, weight = FontWeight.Normal),
@@ -203,6 +214,27 @@ fun ChatGptTheme(
         else -> isSystemInDarkTheme()
     }
     val palette = if (dark) Dark else Light
+    ChatGptPaletteBridge.current = palette
+    VariantPaletteState.superPremium = VariantPaletteSnapshot(
+        background = palette.background,
+        sidebar = palette.sidebar,
+        surface = palette.surface,
+        surfaceElevated = palette.surfaceElevated,
+        textPrimary = palette.textPrimary,
+        textSecondary = palette.textSecondary,
+        textTertiary = palette.textTertiary,
+        divider = palette.divider,
+        accent = palette.accent,
+        onAccent = palette.onAccent,
+        error = palette.error,
+        warning = palette.warning,
+        online = palette.online,
+        codeBackground = palette.codeBackground,
+        codeHeader = palette.codeHeader,
+        inlineCode = palette.inlineCode,
+        userBubble = palette.userBubble,
+        selected = palette.selected
+    )
     val scheme = if (dark) {
         darkColorScheme(
             primary = palette.accent,
@@ -238,6 +270,21 @@ fun ChatGptTheme(
     }
 
     val density = LocalDensity.current
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as? Activity)?.window ?: return@SideEffect
+            WindowCompat.getInsetsController(window, view).apply {
+                isAppearanceLightStatusBars = !dark
+                isAppearanceLightNavigationBars = !dark
+            }
+            @Suppress("DEPRECATION")
+            run {
+                window.statusBarColor = Color.Transparent.toArgb()
+                window.navigationBarColor = Color.Transparent.toArgb()
+            }
+        }
+    }
     CompositionLocalProvider(
         LocalChatGptColors provides palette,
         LocalDensity provides Density(density.density, density.fontScale * fontScale.coerceIn(0.8f, 1.35f))
