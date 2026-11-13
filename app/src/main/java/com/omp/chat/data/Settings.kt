@@ -329,14 +329,16 @@ class SettingsStore(context: Context) {
 
         /** Extracts `token` from a pairing payload; keeps tokens URL-encoded by QR tools. */
         fun tokenFrom(raw: String): String? {
-            val query = raw.substringAfter('?', "")
+            val query = raw.substringAfter('?', "").substringBefore('#')
             if (query.isEmpty()) return null
             for (pair in query.split('&')) {
                 val key = pair.substringBefore('=')
                 if (key.equals("token", true) || key.equals("api_key", true) || key.equals("key", true)) {
-                    val value = pair.substringAfter('=', "")
+                    val value = pair.substringAfter('=', "").trim()
+                    if (value.isEmpty()) return null
                     return try {
-                        java.net.URLDecoder.decode(value, "UTF-8")
+                        // Preserve '+' in tokens (URLDecoder treats '+' as space in form encoding).
+                        java.net.URLDecoder.decode(value.replace("+", "%2B"), "UTF-8")
                     } catch (error: Exception) {
                         value
                     }
