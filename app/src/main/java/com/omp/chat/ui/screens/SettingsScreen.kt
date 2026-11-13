@@ -744,13 +744,15 @@ private fun approvalModeLabel(mode: String): String = when (legacyApprovalMode(m
 @Composable
 private fun SettingsCard(content: @Composable () -> Unit) {
     Surface(
-        color = VariantColors.sidebar,
-        shape = RoundedCornerShape(10.dp),
+        color = VariantColors.surface,
+        shape = RoundedCornerShape(18.dp),
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp,
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, VariantColors.divider, RoundedCornerShape(10.dp))
+            .border(1.dp, VariantColors.divider.copy(alpha = 0.55f), RoundedCornerShape(18.dp))
     ) {
-        Column(Modifier.padding(14.dp)) { content() }
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) { content() }
     }
 }
 
@@ -759,15 +761,16 @@ private fun SwitchRow(title: String, subtitle: String, checked: Boolean, onChang
     Row(
         Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+            Text(title, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
             if (subtitle.isNotBlank()) {
+                Spacer(Modifier.height(2.dp))
                 Text(
                     subtitle,
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -776,8 +779,11 @@ private fun SwitchRow(title: String, subtitle: String, checked: Boolean, onChang
             checked = checked,
             onCheckedChange = onChange,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = Color(0xFFFFFFFF),
-                checkedTrackColor = VariantColors.accent
+                checkedThumbColor = VariantColors.onAccent,
+                checkedTrackColor = VariantColors.accent,
+                uncheckedThumbColor = VariantColors.textSecondary,
+                uncheckedTrackColor = VariantColors.surfaceElevated,
+                uncheckedBorderColor = VariantColors.divider
             )
         )
     }
@@ -789,30 +795,30 @@ private fun Segmented(
     selected: String,
     onSelect: (String) -> Unit
 ) {
-    val scheme = MaterialTheme.colorScheme
     Row(
         Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(14.dp))
             .background(VariantColors.surfaceElevated)
-            .border(1.dp, VariantColors.divider, RoundedCornerShape(8.dp))
-            .padding(2.dp)
+            .border(1.dp, VariantColors.divider.copy(alpha = 0.5f), RoundedCornerShape(14.dp))
+            .padding(3.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         options.forEach { (value, label) ->
             val active = value == selected
             Box(
                 Modifier
                     .weight(1f)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(if (active) VariantColors.accent.copy(alpha = 0.2f) else androidx.compose.ui.graphics.Color.Transparent)
+                    .clip(RoundedCornerShape(11.dp))
+                    .background(if (active) VariantColors.accent else Color.Transparent)
                     .clickable { onSelect(value) }
-                    .padding(vertical = 7.dp),
+                    .padding(vertical = 10.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     label,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = if (active) VariantColors.accent else VariantColors.textSecondary
+                    style = MaterialTheme.typography.labelMedium,
+                    color = if (active) VariantColors.onAccent else VariantColors.textSecondary
                 )
             }
         }
@@ -821,24 +827,23 @@ private fun Segmented(
 
 @Composable
 private fun MiniChoice(label: String, selected: Boolean, onClick: () -> Unit) {
-    val scheme = MaterialTheme.colorScheme
     Surface(
-        color = if (selected) VariantColors.accent.copy(alpha = 0.2f) else VariantColors.surfaceElevated,
-        shape = RoundedCornerShape(8.dp),
+        color = if (selected) VariantColors.accent else VariantColors.surfaceElevated,
+        shape = RoundedCornerShape(10.dp),
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(10.dp))
             .clickable { onClick() }
             .border(
                 1.dp,
-                if (selected) VariantColors.accent else VariantColors.divider,
-                RoundedCornerShape(8.dp)
+                if (selected) VariantColors.accent else VariantColors.divider.copy(alpha = 0.6f),
+                RoundedCornerShape(10.dp)
             )
     ) {
         Text(
             label,
-            style = MaterialTheme.typography.labelSmall,
-            color = if (selected) VariantColors.accent else VariantColors.textSecondary,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+            style = MaterialTheme.typography.labelMedium,
+            color = if (selected) VariantColors.onAccent else VariantColors.textSecondary,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
         )
     }
 }

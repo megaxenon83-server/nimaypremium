@@ -52,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -217,11 +218,11 @@ fun ChatGptChatScreen(
                 Box(
                     Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 90.dp)
-                        .size(40.dp)
+                        .padding(bottom = 96.dp)
+                        .size(42.dp)
                         .clip(CircleShape)
                         .background(c.surfaceElevated)
-                        .border(1.dp, c.divider, CircleShape)
+                        .border(1.dp, c.divider.copy(alpha = 0.7f), CircleShape)
                         .clickable {
                             scope.launch {
                                 followsBottom = true
@@ -474,41 +475,49 @@ private fun GptEmptyState(
     val english = strings.lang == "en"
     val suggestions = if (english) listOf(
         Triple(Icons.Outlined.EditNote, "Write or edit", "Help me improve a text I paste"),
-        Triple(Icons.Outlined.Terminal, "Look at the code", "Show what changed in this project"),
-        Triple(Icons.Outlined.Explore, "Find out", "Explain how this project is built"),
-        Triple(Icons.Outlined.Lightbulb, "Think out loud", "Suggest the next step for this project")
+        Triple(Icons.Outlined.Terminal, "Inspect code", "Show what changed in this project"),
+        Triple(Icons.Outlined.Explore, "Understand", "Explain how this project is built"),
+        Triple(Icons.Outlined.Lightbulb, "Next step", "Suggest the next step for this project")
     ) else listOf(
         Triple(Icons.Outlined.EditNote, "Skriv eller rediger", "Hjelp meg å forbedre en tekst jeg limer inn"),
         Triple(Icons.Outlined.Terminal, "Se på koden", "Vis hva som er endret i dette prosjektet"),
-        Triple(Icons.Outlined.Explore, "Finn ut", "Forklar hvordan dette prosjektet er bygget"),
-        Triple(Icons.Outlined.Lightbulb, "Tenk høyt", "Foreslå neste steg for dette prosjektet")
+        Triple(Icons.Outlined.Explore, "Forstå prosjektet", "Forklar hvordan dette prosjektet er bygget"),
+        Triple(Icons.Outlined.Lightbulb, "Neste steg", "Foreslå neste steg for dette prosjektet")
     )
 
     Column(
         Modifier
             .fillMaxSize()
-            .padding(horizontal = 20.dp),
+            .padding(horizontal = 22.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(48.dp))
-        NimayMark(size = 46)
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.weight(1f))
+        NimayMark(size = 52)
+        Spacer(Modifier.height(18.dp))
         Text(
             if (english) "What can I help with?" else "Hva kan jeg hjelpe med?",
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.SemiBold),
             color = c.textPrimary,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
-        Spacer(Modifier.height(6.dp))
-        Text(
-            if (connected) (if (english) "Connected to $pcName" else "Tilkoblet $pcName")
-            else (if (english) "Not connected" else "Ikke tilkoblet"),
-            style = MaterialTheme.typography.labelMedium,
-            color = if (connected) c.textSecondary else c.warning
-        )
-        Spacer(Modifier.height(26.dp))
+        Spacer(Modifier.height(8.dp))
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Box(
+                Modifier
+                    .size(7.dp)
+                    .clip(CircleShape)
+                    .background(if (connected) c.online else c.warning)
+            )
+            Text(
+                if (connected) (if (english) "Connected to $pcName" else "Tilkoblet $pcName")
+                else (if (english) "Not connected" else "Ikke tilkoblet"),
+                style = MaterialTheme.typography.bodyMedium,
+                color = c.textSecondary
+            )
+        }
+        Spacer(Modifier.height(28.dp))
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
             items(suggestions) { (icon, heading, body) ->
@@ -517,6 +526,7 @@ private fun GptEmptyState(
                 }
             }
         }
+        Spacer(Modifier.weight(1.2f))
     }
 }
 
@@ -526,18 +536,26 @@ private fun GptSuggestionRow(icon: ImageVector, heading: String, body: String, o
     Row(
         Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .background(c.surface.copy(alpha = 0.6f))
-            .border(1.dp, c.divider, RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(18.dp))
+            .background(c.surface.copy(alpha = 0.55f))
+            .border(1.dp, c.divider.copy(alpha = 0.55f), RoundedCornerShape(18.dp))
             .clickable { onClick() }
-            .padding(horizontal = 14.dp, vertical = 12.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Icon(icon, contentDescription = null, tint = c.textSecondary, modifier = Modifier.size(19.dp))
-        Column(Modifier.weight(1f)) {
-            Text(heading, style = MaterialTheme.typography.labelLarge, color = c.textPrimary)
-            Text(body, style = MaterialTheme.typography.labelSmall, color = c.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(c.surfaceElevated),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icon, contentDescription = null, tint = c.textPrimary.copy(alpha = 0.9f), modifier = Modifier.size(18.dp))
+        }
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(heading, style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold), color = c.textPrimary)
+            Text(body, style = MaterialTheme.typography.bodySmall, color = c.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
     }
 }

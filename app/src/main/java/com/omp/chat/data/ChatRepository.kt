@@ -1734,7 +1734,6 @@ class ChatRepository(private val settings: SettingsStore) {
             }
             "message_end" -> {
                 onMessageEnd(event)
-                taskListener?.invoke(TaskEvent.Completed(_state.value.sessionFile))
             }
             "tool_start" -> {
                 val toolName = event.json.str("toolName")
@@ -1754,8 +1753,14 @@ class ChatRepository(private val settings: SettingsStore) {
                 taskListener?.invoke(TaskEvent.ToolEnded(_state.value.sessionFile, toolName, output, isError))
                 onToolEnd(event)
             }
-            "prompt_result" -> onPromptResult(event)
-            "session_settled" -> _state.update { it.copy(streaming = false, streamingStartedAt = 0) }
+            "prompt_result" -> {
+                onPromptResult(event)
+                taskListener?.invoke(TaskEvent.Completed(_state.value.sessionFile))
+            }
+            "session_settled" -> {
+                _state.update { it.copy(streaming = false, streamingStartedAt = 0) }
+                taskListener?.invoke(TaskEvent.Completed(_state.value.sessionFile))
+            }
             "ui_request" -> {
                 val request = Parsers.uiRequest(event.json)
                 if (request.id.isNotBlank()) {
@@ -1795,6 +1800,13 @@ class ChatRepository(private val settings: SettingsStore) {
         if (!isCurrent(token)) return
         if (_state.value.readOnly) return
         val parsed = Parsers.state(json)
+        val incomingFile = parsed.sessionFile
+        val currentFile = _state.value.sessionFile
+        if (incomingFile.isNotBlank() && currentFile.isNotBlank() && incomingFile != currentFile) {
+            // Runtime switched session: reload transcript/state for the new session instead of mixing.
+            scope.launch { runCatching { openSessionByFile(incomingFile, silent = true) } }
+            return
+        }
         val title = parsed.sessionName.ifBlank { _state.value.title }
         _state.update { st ->
             // OMP reports `model: null` while a runtime is still starting or

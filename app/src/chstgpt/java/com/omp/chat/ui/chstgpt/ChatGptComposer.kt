@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -117,7 +118,8 @@ fun ChatGptComposer(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(28.dp))
                 .background(c.surface)
-                .padding(start = 6.dp, end = 6.dp, top = 5.dp, bottom = 5.dp),
+                .border(1.dp, c.divider.copy(alpha = 0.45f), RoundedCornerShape(28.dp))
+                .padding(start = 6.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
             verticalAlignment = Alignment.Bottom
         ) {
             GptIconButton(
